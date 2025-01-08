@@ -32,4 +32,8 @@ For details on compiling, please refer to Theos:
 
 [Theos Installation Guide](https://theos.dev/docs/installation)  
 
-Use **WSL (Windows Sub Linux)** if compiling on windows.
+Use **WSL (Windows Sub Linux)** if compiling on windows.  
+
+#### 3. ImGui usage
+For ImGui usage, please refer to the
+[Official ImGui Wiki](https://github.com/ocornut/imgui/wiki)
