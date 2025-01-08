@@ -25,9 +25,11 @@ uintptr_t BaseAddr = (uintptr_t)_dyld_get_image_header(0);
 ```
 
 **explanation**:  
-_dyld_get_image_header(0) gives you the starting memory address (base address) of the first loaded file in the app, usually the main program itself.
+_dyld_get_image_header(0) gives you the base address of the first loaded file in the app, usually the main program itself.
 
 #### 2. Compilation
 For details on compiling, please refer to Theos:
 
-[Theos Installation Guide](https://theos.dev/docs/installation)
+[Theos Installation Guide](https://theos.dev/docs/installation)  
+
+Use **WSL (Windows Sub Linux)** if compiling on windows.
