@@ -5,9 +5,6 @@ void UserMenu::DrawMenu()
 {
 
 
-    //ImVec2 menuPos = ImGui::GetWindowPos();
-	//ImVec2 windowsize = ImGui::GetWindowSize();
-
     ImVec2 WindowSize = ImVec2(275, 200);
     ImGui::SetNextWindowSize(WindowSize, ImGuiCond_Once);
 
