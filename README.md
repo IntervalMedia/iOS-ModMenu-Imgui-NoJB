@@ -3,7 +3,7 @@
 ## Komaru ModMenu Template
 **Note**: The majority of this project was **NOT** created by me; I have contributed only minimal modifications.
 
-This ModMenu is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK**.  
+This template is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK**.  
 This was created due to the lack of readily available iOS ModMenu templates.
 
 ---
