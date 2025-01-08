@@ -1,10 +1,10 @@
 # iOS-Theos-ModMenuTemp-NoJB
 
 ## Komaru ModMenu Template
-**Note**: The majority of this project was **NOT** created by me; I have contributed only minimal modifications.
+**Note**: A substantial portion of this project was **NOT** created by me.
 
-This template is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK**.  
-This was created due to the lack of readily available iOS ModMenu templates.
+This template is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK: Ultimate Mobile Edition**.  
+This was created due to a lack iOS ModMenu templates.
 
 ---
 
