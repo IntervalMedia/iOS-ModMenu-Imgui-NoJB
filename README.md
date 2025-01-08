@@ -20,7 +20,6 @@ It is posted here due to the lack of iOS ModMenu templates.
 ### Usage
 
 #### 1. Getting the Base Address
-Retrieve the base address:
 
 ```cpp
 uintptr_t BaseAddr = (uintptr_t)_dyld_get_image_header(0);
