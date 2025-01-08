@@ -9,8 +9,8 @@ This was created due to the lack of readily available iOS ModMenu templates.
 ---
 
 ### Features
+- **Simple Offset Patching**: Straightforward coding style for easy understanding and modification.
 - **Floating Menu Button**: Easily accessible interface for in-game mod controls.
-- **Simple C-Style Casting**: Straightforward coding style for easy understanding and modification.
 - **UE4 Usage Examples**: Reference implementations for Unreal Engine 4.
 - **ImGui menu**: Easily modified ImGui menu for iOS
 
@@ -27,13 +27,28 @@ uintptr_t BaseAddr = (uintptr_t)_dyld_get_image_header(0);
 **Explanation**:  
 _dyld_get_image_header(0) gives you the base address of the first loaded file in the app, usually the main program itself.
 
-#### 2. Compilation
+#### 2. Simple offset patching
+
+Reading memory:  
+
+```cpp
+uintptr_t EX = KomaruPatch::ReadMem(Ptr + Ptr);
+```
+
+Writing memory:  
+
+```cpp
+KomaruPatch::WriteMem<Type>(Ptr + Offset, Value);
+```
+Examples in BasicHacks.mm  
+
+#### 3. Compilation
 For details on compiling, please refer to Theos:
 
 [Theos Installation Guide](https://theos.dev/docs/installation)  
 
 Use **WSL (Windows Sub Linux)** if compiling on windows.  
 
-#### 3. ImGui
+#### 4. ImGui
 For ImGui usage, please refer to the
 [Official ImGui Wiki](https://github.com/ocornut/imgui/wiki)
