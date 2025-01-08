@@ -1,8 +1,0 @@
-Package: com.ktemp
-Name: komaru
-Depends: mobilesubstrate
-Version: 1
-Architecture: iphoneos-arm
-Description: Game cheeto template
-Maintainer: aq9
-Author: aq9
