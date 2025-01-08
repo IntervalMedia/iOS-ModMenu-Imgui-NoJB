@@ -1,13 +1,15 @@
 # iOS-Theos-ModMenuTemp-NoJB
  
 ## Komaru ModMenu Temp  
-I did **NOT** write the majority of this.  
-Made for jailed iOS devices
-designed primarily for ARK  
+I did **NOT** write a majority of this.  
+Made for jailed/NonJB iOS devices
+originally designed for ARK  
 Floating menu button  
-simple C-Style casts  
-easy usage  
-
+simple C-Style casts        
+easily understandable  
+UE4 usage examples  
+  
+Posted due to a lack of iOS MM templates
 ---  
 
 ### Usage  
