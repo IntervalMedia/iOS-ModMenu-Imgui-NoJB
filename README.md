@@ -12,10 +12,9 @@ easy usage
 
 ### Usage  
 * Getting BaseAddress  
-``` uintptr_t BaseAddr  =  (uintptr_t)_dyld_get_image_header(0); ```  
-refer to [https://theos.dev](https://theos.dev/docs/installation) for compilation
+``` uintptr_t BaseAddr  =  (uintptr_t)_dyld_get_image_header(0); ```
 
-WSL for windows  
+refer to [https://theos.dev](https://theos.dev/docs/installation) for compilation
 
 ---
 ### Discord: aq9
