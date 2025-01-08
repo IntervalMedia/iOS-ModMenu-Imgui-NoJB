@@ -24,7 +24,7 @@ This was created due to the lack of readily available iOS ModMenu templates.
 uintptr_t BaseAddr = (uintptr_t)_dyld_get_image_header(0);
 ```
 
-**explanation**:  
+**Explanation**:  
 _dyld_get_image_header(0) gives you the base address of the first loaded file in the app, usually the main program itself.
 
 #### 2. Compilation
@@ -34,6 +34,6 @@ For details on compiling, please refer to Theos:
 
 Use **WSL (Windows Sub Linux)** if compiling on windows.  
 
-#### 3. ImGui usage
+#### 3. ImGui
 For ImGui usage, please refer to the
 [Official ImGui Wiki](https://github.com/ocornut/imgui/wiki)
