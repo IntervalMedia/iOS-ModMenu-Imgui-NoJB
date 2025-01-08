@@ -24,6 +24,9 @@ This was created due to the lack of readily available iOS ModMenu templates.
 uintptr_t BaseAddr = (uintptr_t)_dyld_get_image_header(0);
 ```
 
+**explanation**:  
+_dyld_get_image_header(0) gives you the starting memory address (base address) of the first loaded file in the app, usually the main program itself.
+
 #### 2. Compilation
 For details on compiling, please refer to Theos:
 
