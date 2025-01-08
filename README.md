@@ -29,18 +29,17 @@ _dyld_get_image_header(0) gives you the base address of the first loaded file in
 
 #### 2. Simple offset patching
 
-Reading memory:  
+**Reading memory:**  
 
 ```cpp
 uintptr_t EX = KomaruPatch::ReadMem(Ptr + Ptr);
 ```
 
-Writing memory:  
+**Writing memory:**  
 
 ```cpp
 KomaruPatch::WriteMem<Type>(Ptr + Offset, Value);
-```
-Examples in BasicHacks.mm  
+``` 
 
 #### 3. Compilation
 For details on compiling, please refer to Theos:
