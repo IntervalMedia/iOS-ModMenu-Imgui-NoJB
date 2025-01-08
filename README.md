@@ -3,9 +3,8 @@
 ## Komaru ModMenu (Temporary Version)
 **Note**: The majority of this project was **NOT** created by me; I have contributed only minimal modifications.
 
-This ModMenu is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK**. It provides a **floating menu button** and uses **simple C-style casting**, ensuring it is **easy to understand** and modify.
-
-It is posted here due to the lack of iOS ModMenu templates.
+This ModMenu is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK**.
+This was created due to the lack of readily available iOS ModMenu templates.
 
 ---
 
