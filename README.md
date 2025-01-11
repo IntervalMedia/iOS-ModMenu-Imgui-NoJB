@@ -52,7 +52,13 @@ Use **WSL (Windows Sub Linux)** if compiling on windows.
 For ImGui usage, please refer to the
 [Official ImGui Wiki](https://github.com/ocornut/imgui/wiki)
 
----
 
 **Example Image:** 
-![Example Image](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/FovChanger.png)
+![Example Image](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/FovChanger.png)  
+
+  ---  
+  ###UPDATES  
+
+  ####1-10-25
+  updated [KomaruPatch.hpp]([https://theos.dev/docs/installation](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/TheosMMTempKomaru/utils/KPatch.hpp))  
+  automatically checks pointer validity now.  
