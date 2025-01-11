@@ -57,8 +57,8 @@ For ImGui usage, please refer to the
 ![Example Image](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/FovChanger.png)  
 
   ---  
-  ###UPDATES  
+  UPDATES  
 
-  ####1-10-25
+  1-10-25
   updated [KomaruPatch.hpp]([https://theos.dev/docs/installation](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/TheosMMTempKomaru/utils/KPatch.hpp))  
   automatically checks pointer validity now.  
