@@ -10,10 +10,6 @@ https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
 
 bool running = true;
 
-bool BasicHacks::IsValidPointer(long Offset) {
-    return Offset > 0x100000000 && (uint64_t)Offset < 0x3000000000;
-}
-
 namespace offsets {
     constexpr uintptr_t OFFSET_GWorld                   = 0x04d5b510;
     constexpr uintptr_t OFFSET_OwningGameInstance       = 0x320;
@@ -32,14 +28,14 @@ void* BasicHacks::HacksThread(void* arg)
         usleep(100);
         //ARK FOV Changer example
         uintptr_t BaseAddr                =  (uintptr_t)_dyld_get_image_header(0);
-        uintptr_t GWorld                  = KomaruPatch::ReadMem(BaseAddr + OFFSET_GWorld);                             if (!IsValidPointer(GWorld))                     continue; 
-        uintptr_t OwningGameInstance      = KomaruPatch::ReadMem(GWorld + OFFSET_OwningGameInstance);                   if (!IsValidPointer(OwningGameInstance))         continue;
-        uintptr_t LocalPlayers            = KomaruPatch::ReadMem(OwningGameInstance + OFFSET_LocalPlayers);             if (!IsValidPointer(LocalPlayers))               continue;
-        uintptr_t LocalPlayer             = KomaruPatch::ReadMem(LocalPlayers);                                         if (!IsValidPointer(LocalPlayer))                continue; 
-        uintptr_t LocalPlayerController   = KomaruPatch::ReadMem(LocalPlayer + OFFSET_LocalPlayerController);           if (!IsValidPointer(LocalPlayerController))      continue;
-        uintptr_t PlayerCameraManager     = KomaruPatch::ReadMem(LocalPlayerController + OFFSET_PlayerCameraManager);   if (!IsValidPointer(PlayerCameraManager))        continue;
+        uintptr_t GWorld                  = KomaruPatch::ReadMem(BaseAddr + OFFSET_GWorld);
+        uintptr_t OwningGameInstance      = KomaruPatch::ReadMem(GWorld + OFFSET_OwningGameInstance);
+        uintptr_t LocalPlayers            = KomaruPatch::ReadMem(OwningGameInstance + OFFSET_LocalPlayers);
+        uintptr_t LocalPlayer             = KomaruPatch::ReadMem(LocalPlayers);
+        uintptr_t LocalPlayerController   = KomaruPatch::ReadMem(LocalPlayer + OFFSET_LocalPlayerController);
+        uintptr_t PlayerCameraManager     = KomaruPatch::ReadMem(LocalPlayerController + OFFSET_PlayerCameraManager);
 
-      //KomaruPatch::WriteMem<DType>(Ptr   + Offset, Value);
+//      KomaruPatch::WriteMem<DType>(Ptr   + Offset, Value);
         KomaruPatch::WriteMem<float>(PlayerCameraManager + 0x33c0, KTempVars.CameraFOV); // MenuLoad -> Includes.h
 
     } return NULL; }
