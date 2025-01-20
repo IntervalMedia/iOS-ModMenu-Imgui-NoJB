@@ -17,7 +17,7 @@ jobs:
     - name: Install Theos
       run: |
         sudo apt-get update
-        sudo apt-get install -y autoconf libtool libtool-dev bash curl openssl libssl-dev libmpc-dev libmpfr-dev libgmp-dev wget
+        sudo apt-get install -y autoconf libtoo bash curl openssl
         bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
 
     - name: Set THEOS_MAKE_PATH
