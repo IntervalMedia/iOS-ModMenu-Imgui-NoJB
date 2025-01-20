@@ -88,7 +88,9 @@ void BasicHacks::HacksThread() {
     uintptr_t PlayerCameraManager = KomaruPatch::ReadMem(LocalPlayerController + OFFSET_PlayerCameraManager);
     if(!PlayerCameraManager) return;
 
-    KomaruPatch::WriteMem<float>(PlayerCameraManager + 0x33c0, KTempVars.CameraFOV);
+    if(!KomaruPatch::WriteMem<float>(PlayerCameraManager + 0x33c0, KTempVars.CameraFOV)){
+        return;
+    }
 }
 
 @implementation GameLoop {
