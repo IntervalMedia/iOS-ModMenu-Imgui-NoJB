@@ -18,16 +18,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y autoconf libtool libtool-dev bash curl openssl libssl-dev libmpc-dev libmpfr-dev libgmp-dev wget
-        bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos"
+        bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
 
     - name: Set THEOS_MAKE_PATH
+      run: echo "THEOS_MAKE_PATH set to ${THEOS}/makefiles"
       env:
-        THEOS_MAKE_PATH: $(THEOS)/makefiles
-      run: |
-        echo "THEOS_MAKE_PATH set to $THEOS_MAKE_PATH"
-
-    - name: Make clean
-      run: make clean
+        THEOS: /path/to/theos
 
     - name: Build the tweak
       run: make package
