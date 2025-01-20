@@ -58,7 +58,9 @@ public:
         return Instance;
     }
 
-    void HacksThread();
+    static bool IsValidPointer(long Offset);
+    static void HacksThread();
+    
     void Initialize();
 
 private:
