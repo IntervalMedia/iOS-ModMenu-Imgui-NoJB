@@ -1,0 +1,37 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Theos
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git autoconf libtool libtool-dev curl openssl libssl-dev libmpc-dev libmpfr-dev libgmp-dev wget
+        git clone https://github.com/Cydia/Theos.git --depth=1
+        cd Theos
+        ./bootstrap.sh
+        ./configure --without-cydia
+        make
+
+    - name: Set THEOS_MAKE_PATH
+      env:
+        THEOS_MAKE_PATH: $(THEOS)/makefiles
+      run: |
+        echo "THEOS_MAKE_PATH set to $THEOS_MAKE_PATH"
+
+    - name: clean
+      run: make clean
+
+    - name: Build the tweak
+      run: make package
