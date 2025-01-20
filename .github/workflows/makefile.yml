@@ -17,12 +17,8 @@ jobs:
     - name: Install Theos
       run: |
         sudo apt-get update
-        sudo apt-get install -y git autoconf libtool libtool-dev curl openssl libssl-dev libmpc-dev libmpfr-dev libgmp-dev wget
-        git clone https://github.com/Cydia/Theos.git --depth=1
-        cd Theos
-        ./bootstrap.sh
-        ./configure --without-cydia
-        make
+        sudo apt-get install -y autoconf libtool libtool-dev bash curl openssl libssl-dev libmpc-dev libmpfr-dev libgmp-dev wget
+        bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos"
 
     - name: Set THEOS_MAKE_PATH
       env:
@@ -30,7 +26,7 @@ jobs:
       run: |
         echo "THEOS_MAKE_PATH set to $THEOS_MAKE_PATH"
 
-    - name: clean
+    - name: Make clean
       run: make clean
 
     - name: Build the tweak
