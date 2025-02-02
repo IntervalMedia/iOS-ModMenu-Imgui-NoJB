@@ -19,20 +19,23 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y autoconf bash curl openssl
         bash -c "$(curl -fsSL "https://raw.githubusercontent.com/theos/theos/master/bin/install-theos")"
+        echo 'export THEOS=$HOME/theos' >> $GITHUB_ENV
 
-    # - name: Download iOS SDK
-    #   run: |
-    #     mkdir -p $THEOS/sdks
-    #     curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o sdks.zip
-    #     unzip sdks.zip -d $THEOS/sdks
-    #     mv $THEOS/sdks/sdks-master/iPhoneOS16.5.sdk $THEOS/sdks/
-    #     rm -rf $THEOS/sdks/sdks-master sdks.zip
+    - name: Download iOS SDK
+      run: |
+        mkdir -p $HOME/theos/sdks
+        curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o sdks.zip
+        unzip sdks.zip -d $HOME/theos/sdks
+        mv $HOME/theos/sdks/sdks-master/iPhoneOS16.5.sdk $HOME/theos/sdks/
+        rm -rf $HOME/theos/sdks/sdks-master sdks.zip
 
     - name: Set THEOS_MAKE_PATH
-      run: echo "THEOS_MAKE_PATH set to ${THEOS}/makefiles"
+      run: echo "THEOS_MAKE_PATH set to $THEOS/makefiles"
       env:
-        THEOS: /path/to/theos
+        THEOS: $HOME/theos
 
     - name: Build the tweak from TheosMMTempKomaru folder
-      run: make package
+      run: make clean package
       working-directory: ./TheosMMTempKomaru
+      env:
+        THEOS: $HOME/theos
