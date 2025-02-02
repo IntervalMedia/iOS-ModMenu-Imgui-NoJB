@@ -20,13 +20,13 @@ jobs:
         sudo apt-get install -y autoconf bash curl openssl
         bash -c "$(curl -fsSL "https://raw.githubusercontent.com/theos/theos/master/bin/install-theos")"
 
-    - name: Download iOS SDK
-      run: |
-        mkdir -p $THEOS/sdks
-        curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o sdks.zip
-        unzip sdks.zip -d $THEOS/sdks
-        mv $THEOS/sdks/sdks-master/iPhoneOS16.5.sdk $THEOS/sdks/
-        rm -rf $THEOS/sdks/sdks-master sdks.zip
+    # - name: Download iOS SDK
+    #   run: |
+    #     mkdir -p $THEOS/sdks
+    #     curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o sdks.zip
+    #     unzip sdks.zip -d $THEOS/sdks
+    #     mv $THEOS/sdks/sdks-master/iPhoneOS16.5.sdk $THEOS/sdks/
+    #     rm -rf $THEOS/sdks/sdks-master sdks.zip
 
     - name: Set THEOS_MAKE_PATH
       run: echo "THEOS_MAKE_PATH set to ${THEOS}/makefiles"
