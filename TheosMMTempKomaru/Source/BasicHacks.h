@@ -35,19 +35,24 @@ static BasicHacks& BasicCheats = BasicHacks::GetInstance();
 // Define uintptr_t if not already defined
 #pragma once
 
-#ifndef uintptr_t
+#import <Foundation/Foundation.h>
 #include <cstdint>
-using uintptr_t = std::uintptr_t;
-#endif
+
+@interface GameLoop : NSObject
+
+- (void)start;
+- (void)stop;
+
+@end
 
 
 namespace offsets {
-    extern constexpr uintptr_t OFFSET_GWorld;
-    extern constexpr uintptr_t OFFSET_OwningGameInstance;
-    extern constexpr uintptr_t OFFSET_LocalPlayers;
-    extern constexpr uintptr_t OFFSET_LocalPlayerController;
-    extern constexpr uintptr_t OFFSET_PlayerCameraManager;
-}
+    extern uintptr_t OFFSET_GWorld;
+    extern uintptr_t OFFSET_OwningGameInstance;
+    extern uintptr_t OFFSET_LocalPlayers;
+    extern uintptr_t OFFSET_LocalPlayerController;
+    extern uintptr_t OFFSET_PlayerCameraManager;
+};
 
 class BasicHacks {
 public:
@@ -68,11 +73,3 @@ private:
 };
 
 static BasicHacks& BasicCheats = BasicHacks::GetInstance();
-
-@interface GameLoop : NSObject
-
-- (void)start;
-- (void)stop;
-
-@end
-
