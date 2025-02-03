@@ -17,11 +17,11 @@ jobs:
       - name: Install Theos
         uses: waruhachi/theos-action@v2.2.3
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            theos-src: 'theos/theos'
-            theos-branch: 'master'
-            theos-cache: true
+          theos-src: 'theos/theos'
+          theos-branch: 'master'
+          theos-cache: true
 
       - name: Build package
         run: |
