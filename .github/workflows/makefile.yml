@@ -13,9 +13,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-          
+
       - name: Install Theos
-          uses: Randomblock1/theos-action@v1.4
+        uses: Randomblock1/theos-action@v1.4
 
       - name: Build package
         run: |
