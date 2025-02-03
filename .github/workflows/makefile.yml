@@ -23,7 +23,7 @@ jobs:
           make package FINALPACKAGE=1
 
       - name: Upload package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "Package built by ${{ matrix.os }}"
           path: ${{ github.workspace }}/packages/*.deb
