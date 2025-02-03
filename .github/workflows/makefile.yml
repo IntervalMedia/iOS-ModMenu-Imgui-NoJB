@@ -1,41 +1,46 @@
-name: Makefile CI
+# name: CI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+# on: [push]
 
-jobs:
-  build:
+# jobs:
+#   build:
+#     runs-on: ${{ matrix.os }}
+#     strategy:
+#       matrix:
+#         os: [macos-latest, ubuntu-latest]
 
-    runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           submodules: true
 
-    steps:
-    - uses: actions/checkout@v4
+#       - name: Check cache
+#         run: |
+#           echo upstream_heads=`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1` >> $GITHUB_ENV
 
-    - name: Install Theos
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y autoconf bash curl openssl
-        bash -c "$(curl -fsSL "https://raw.githubusercontent.com/theos/theos/master/bin/install-theos")"
-        echo 'export THEOS=$HOME/theos' >> $GITHUB_ENV
+#       - name: Use cache
+#         id: cache
+#         uses: actions/cache@v3
+#         with:
+#           path: ${{ github.workspace }}/theos
+#           key: ${{ runner.os }}-${{ env.upstream_heads }}
 
-    - name: Download iOS SDK
-      run: |
-        mkdir -p $HOME/theos/sdks
-        curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o sdks.zip
-        unzip sdks.zip -d $HOME/theos/sdks
-        mv $HOME/theos/sdks/sdks-master/iPhoneOS16.5.sdk $HOME/theos/sdks/
-        rm -rf $HOME/theos/sdks/sdks-master sdks.zip
+#       - name: Prepare Theos
+#         # Don't use @main in production, this repo is specifically for testing it.
+#         uses: Randomblock1/theos-action@main
 
-    - name: Set THEOS_MAKE_PATH
-      run: echo "THEOS_MAKE_PATH set to $THEOS/makefiles"
-      env:
-        THEOS: $HOME/theos
+#       - name: Build package
+#         run: |
+#           rm -f packages/*
+#           make package FINALPACKAGE=1
 
-    - name: Build the tweak from TheosMMTempKomaru folder
-      run: make clean package
-      working-directory: ./TheosMMTempKomaru
-      env:
-        THEOS: $HOME/theos
+#       - name: Upload package
+
+- name: Install Theos
+  uses: Randomblock1/theos-action@v1.4
+
+
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: "Package built by ${{ matrix.os }}"
+#           path: ${{ github.workspace }}/packages/*.deb
