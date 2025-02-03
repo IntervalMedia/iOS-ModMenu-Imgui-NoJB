@@ -16,16 +16,16 @@ jobs:
 
       - name: Install Theos
         uses: waruhachi/theos-action@v2.2.3
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            theos-dir: '~/theos'
             theos-src: 'theos/theos'
             theos-branch: 'master'
             theos-cache: true
 
       - name: Build package
         run: |
-          rm -f packages/*
-          make package FINALPACKAGE=1
+          make clean package
 
       - name: Upload package
         uses: actions/upload-artifact@v4
