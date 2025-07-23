@@ -4,7 +4,7 @@
 **Note**: A substantial portion of this project was **NOT** created by me.
 
 This template is designed for **non-jailbroken (jailed) iOS devices** and was originally created for **ARK: Ultimate Mobile Edition**.  
-This was created due to a lack iOS ModMenu templates.
+This was created due to a lack of iOS ModMenu templates.
 
 ---
 
@@ -46,7 +46,7 @@ For details on compiling, please refer to Theos:
 
 [Theos Installation Guide](https://theos.dev/docs/installation)  
 
-Use **WSL (Windows Sub Linux)** if compiling on windows.  
+Use **Windows Subsystem for Linux (WSL)** if compiling on Windows.
 
 #### 4. ImGui
 For ImGui usage, please refer to the
@@ -60,5 +60,5 @@ For ImGui usage, please refer to the
   UPDATES  
 
   1-10-25
-  updated [KomaruPatch.hpp]([https://theos.dev/docs/installation](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/TheosMMTempKomaru/utils/KPatch.hpp))  
+  updated [KomaruPatch.hpp](https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB/blob/main/TheosMMTempKomaru/utils/KPatch.hpp)
   automatically checks pointer validity now.  
