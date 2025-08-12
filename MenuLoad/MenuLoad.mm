@@ -93,7 +93,11 @@ bool isOpened = false;
         hideRecordView = nil;
     }
 
-    [[UIApplication sharedApplication].keyWindow addSubview:hideRecordView];
+    UIWindow *window = UIApplication.sharedApplication.windows.firstObject;
+    if (!window) {
+        return;
+    }
+    [window addSubview:hideRecordView];
 
     if (!_vna) {
         ImGuiDrawView *vc = [[ImGuiDrawView alloc] init];
