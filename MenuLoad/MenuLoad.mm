@@ -73,6 +73,23 @@ bool isOpened = false;
     return _vna;
 }
 
+- (UIView *)hostView {
+    UIApplication *application = [UIApplication sharedApplication];
+    UIWindow *window = application.keyWindow;
+    if (!window) {
+        for (UIWindow *candidate in application.windows) {
+            if (candidate.isKeyWindow) {
+                window = candidate;
+                break;
+            }
+        }
+    }
+    if (!window) {
+        window = application.windows.firstObject;
+    }
+    return window.rootViewController.view;
+}
+
 - (CGRect)floatingButtonBoundsForView:(UIView *)mainView {
     UIEdgeInsets safeInsets = UIEdgeInsetsZero;
     if (@available(iOS 11.0, *)) {
@@ -85,9 +102,11 @@ bool isOpened = false;
     CGFloat maxY = mainView.bounds.size.height - safeInsets.bottom - kFloatingButtonInset - kFloatingButtonSize;
 
     if (maxX < minX) {
+        os_log_debug(OS_LOG_DEFAULT, "Floating button horizontal bounds collapsed; falling back to minimum x.");
         maxX = minX;
     }
     if (maxY < minY) {
+        os_log_debug(OS_LOG_DEFAULT, "Floating button vertical bounds collapsed; falling back to minimum y.");
         maxY = minY;
     }
 
@@ -125,7 +144,6 @@ bool isOpened = false;
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setDouble:origin.x forKey:kFloatingButtonPositionXKey];
     [defaults setDouble:origin.y forKey:kFloatingButtonPositionYKey];
-    [defaults synchronize];
 }
 
 - (void)applyFloatingButtonFrame:(CGRect)frame animated:(BOOL)animated {
@@ -160,7 +178,7 @@ bool isOpened = false;
 }
 
 - (void)snapFloatingButtonToEdgeAnimated:(BOOL)animated {
-    UIView *mainView = [UIApplication sharedApplication].windows[0].rootViewController.view;
+    UIView *mainView = [self hostView];
     if (!mainView || !InvisibleMenuButton || !VisibleMenuButton) {
         return;
     }
@@ -185,7 +203,10 @@ bool isOpened = false;
 }
 
 -(void)initTapGes {
-    UIView* mainView = [UIApplication sharedApplication].windows[0].rootViewController.view;
+    UIView* mainView = [self hostView];
+    if (!mainView) {
+        return;
+    }
 
     hideRecordTextfield = [[UITextField alloc] init];
     hideRecordView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height)];
@@ -201,7 +222,7 @@ bool isOpened = false;
         hideRecordView = nil;
     }
 
-    UIWindow *window = UIApplication.sharedApplication.windows.firstObject;
+    UIWindow *window = mainView.window ?: UIApplication.sharedApplication.keyWindow ?: UIApplication.sharedApplication.windows.firstObject;
     if (!window) {
         return;
     }
@@ -216,7 +237,7 @@ bool isOpened = false;
     [hideRecordView addSubview:_vna.view];
 
     menuTouchView = [[MenuInteraction alloc] initWithFrame:mainView.frame];
-    [[UIApplication sharedApplication].windows[0].rootViewController.view addSubview:menuTouchView];
+    [mainView addSubview:menuTouchView];
 
     NSData* data = [[NSData alloc] initWithBase64EncodedString:baseimage options:0];
     UIImage* menuIconImage = [UIImage imageWithData:data];
@@ -231,7 +252,7 @@ bool isOpened = false;
     [InvisibleMenuButton addTarget:self action:@selector(buttonTouchReleased:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(showMenu:)];
     [InvisibleMenuButton addGestureRecognizer:tapGestureRecognizer];
-    [[UIApplication sharedApplication].windows[0].rootViewController.view addSubview:InvisibleMenuButton];
+    [mainView addSubview:InvisibleMenuButton];
     
     VisibleMenuButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     VisibleMenuButton.frame = initialFrame;
@@ -265,7 +286,7 @@ bool isOpened = false;
     CGFloat delta_x = location.x - previousLocation.x;
     CGFloat delta_y = location.y - previousLocation.y;
 
-    UIView *mainView = [UIApplication sharedApplication].windows[0].rootViewController.view;
+    UIView *mainView = [self hostView];
     CGPoint unclampedOrigin = CGPointMake(button.frame.origin.x + delta_x, button.frame.origin.y + delta_y);
     CGPoint clampedOrigin = [self clampedButtonOriginForOrigin:unclampedOrigin inView:mainView];
     [self applyFloatingButtonFrame:CGRectMake(clampedOrigin.x, clampedOrigin.y, kFloatingButtonSize, kFloatingButtonSize) animated:NO];

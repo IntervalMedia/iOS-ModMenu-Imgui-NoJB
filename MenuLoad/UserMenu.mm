@@ -10,6 +10,12 @@ https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
 #include "Includes.h"
 
 namespace {
+constexpr ImU32 kHealthBarBackgroundColor = IM_COL32(18, 24, 30, 180);
+constexpr int kHealthBarFillBlue = 90;
+constexpr int kHealthBarFillAlpha = 230;
+constexpr int kInfoLabelBufferLength = 96;
+constexpr int kHealthLabelBufferLength = 48;
+
 struct MockEspEntity {
     const char* Name;
     float PhaseOffset;
@@ -21,18 +27,18 @@ struct MockEspEntity {
     float HealthOffset;
 };
 
-void DrawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, float healthRatio) {
+void drawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, float healthRatio) {
     const float barWidth = 6.0f;
     const float barPadding = 8.0f;
     ImVec2 barMin = ImVec2(topLeft.x - barPadding - barWidth, topLeft.y);
     ImVec2 barMax = ImVec2(barMin.x + barWidth, topLeft.y + height);
-    drawList->AddRectFilled(barMin, barMax, IM_COL32(18, 24, 30, 180), 3.0f);
+    drawList->AddRectFilled(barMin, barMax, kHealthBarBackgroundColor, 3.0f);
 
     float clampedHealth = fminf(fmaxf(healthRatio, 0.0f), 1.0f);
     float filledTop = barMax.y - (height * clampedHealth);
     ImVec2 fillMin = ImVec2(barMin.x + 1.0f, filledTop);
     ImVec2 fillMax = ImVec2(barMax.x - 1.0f, barMax.y - 1.0f);
-    ImU32 fillColor = IM_COL32((int)((1.0f - clampedHealth) * 255.0f), (int)(clampedHealth * 230.0f), 90, 230);
+    ImU32 fillColor = IM_COL32((int)((1.0f - clampedHealth) * 255.0f), (int)(clampedHealth * kHealthBarFillAlpha), kHealthBarFillBlue, kHealthBarFillAlpha);
     drawList->AddRectFilled(fillMin, fillMax, fillColor, 2.0f);
     drawList->AddRect(barMin, barMax, IM_COL32(255, 255, 255, 80), 3.0f, 0, 1.0f);
 }
@@ -118,13 +124,13 @@ void UserMenu::RenderingMenu()
         drawList->AddRect(boxMin, boxMax, entity.Color, 5.0f, 0, 2.0f);
         drawList->AddRect(ImVec2(boxMin.x - 2.0f, boxMin.y - 2.0f), ImVec2(boxMax.x + 2.0f, boxMax.y + 2.0f), IM_COL32(255, 255, 255, 45), 6.0f, 0, 1.0f);
 
-        DrawHealthBar(drawList, boxMin, boxHeight, healthRatio);
+        drawHealthBar(drawList, boxMin, boxHeight, healthRatio);
 
-        char infoLabel[96];
+        char infoLabel[kInfoLabelBufferLength];
         snprintf(infoLabel, sizeof(infoLabel), "%s  %.0fm", entity.Name, distanceMeters);
         drawList->AddText(ImVec2(boxMin.x, boxMin.y - 18.0f), IM_COL32(255, 255, 255, 235), infoLabel);
 
-        char healthLabel[48];
+        char healthLabel[kHealthLabelBufferLength];
         snprintf(healthLabel, sizeof(healthLabel), "HP %d%%", (int)(healthRatio * 100.0f));
         drawList->AddText(ImVec2(boxMin.x, boxMax.y + 8.0f), IM_COL32(190, 255, 200, 225), healthLabel);
     }
