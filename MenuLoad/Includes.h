@@ -67,6 +67,7 @@ struct GlobalVariables
     bool MoveMenu = false; //Move the menu
     bool ShowEspOverlay = true; //show the mock ESP overlay
     bool ShowEspSnaplines = true; //show ESP snaplines
+    bool ShowEspMarkers = true; //show ESP markers
     bool ShowEspBoxes = true; //show ESP boxes
     bool ShowEspLabels = true; //show ESP labels
     bool ShowEspHealthBars = true; //show ESP health bars

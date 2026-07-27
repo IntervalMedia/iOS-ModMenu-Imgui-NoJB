@@ -16,6 +16,11 @@ constexpr int kHealthBarFillBlue = 90;
 constexpr int kHealthBarFillAlpha = 230;
 constexpr int kInfoLabelBufferLength = 96;
 constexpr int kHealthLabelBufferLength = 48;
+constexpr float kMarkerInnerRadius = 4.0f;
+constexpr float kMarkerOuterBaseRadius = 9.0f;
+constexpr float kMarkerPulseAmplitude = 1.5f;
+constexpr int kMarkerSegments = 24;
+constexpr float kMarkerOutlineThickness = 1.2f;
 
 struct MockEspEntity {
     const char* Name;
@@ -66,8 +71,8 @@ void DrawEspSnapline(ImDrawList* drawList, const ImVec2& origin, const MockEspSt
 }
 
 void DrawEspMarker(ImDrawList* drawList, const MockEspState& state, ImU32 color, float oscillation) {
-    drawList->AddCircleFilled(state.Head, 4.0f, color);
-    drawList->AddCircle(state.Head, 9.0f + sinf(oscillation * 2.0f) * 1.5f, color, 24, 1.2f);
+    drawList->AddCircleFilled(state.Head, kMarkerInnerRadius, color);
+    drawList->AddCircle(state.Head, kMarkerOuterBaseRadius + sinf(oscillation * 2.0f) * kMarkerPulseAmplitude, color, kMarkerSegments, kMarkerOutlineThickness);
 }
 
 void DrawEspBox(ImDrawList* drawList, const MockEspState& state, ImU32 color) {
@@ -118,9 +123,10 @@ void UserMenu::DrawMenu()
         ImGui::Checkbox("Enable Overlay", &KTempVars.ShowEspOverlay);
         ImGui::Checkbox("Snaplines", &KTempVars.ShowEspSnaplines);
         ImGui::SameLine();
+        ImGui::Checkbox("Markers", &KTempVars.ShowEspMarkers);
         ImGui::Checkbox("Boxes", &KTempVars.ShowEspBoxes);
-        ImGui::Checkbox("Labels", &KTempVars.ShowEspLabels);
         ImGui::SameLine();
+        ImGui::Checkbox("Labels", &KTempVars.ShowEspLabels);
         ImGui::Checkbox("Health Bars", &KTempVars.ShowEspHealthBars);
 
     }
@@ -181,7 +187,9 @@ void UserMenu::RenderingMenu()
         if (KTempVars.ShowEspSnaplines) {
             DrawEspSnapline(drawList, snaplineOrigin, state, entity.Color);
         }
-        DrawEspMarker(drawList, state, entity.Color, oscillation);
+        if (KTempVars.ShowEspMarkers) {
+            DrawEspMarker(drawList, state, entity.Color, oscillation);
+        }
         if (KTempVars.ShowEspBoxes) {
             DrawEspBox(drawList, state, entity.Color);
         }
