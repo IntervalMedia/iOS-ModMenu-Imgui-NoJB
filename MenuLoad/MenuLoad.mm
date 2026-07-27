@@ -103,11 +103,15 @@ bool isOpened = false;
 
     if (maxX < minX) {
         os_log_debug(OS_LOG_DEFAULT, "Floating button horizontal bounds collapsed; falling back to minimum x.");
-        maxX = minX;
+        CGFloat fallbackX = fmax((mainView.bounds.size.width - kFloatingButtonSize) * 0.5f, 0.0f);
+        minX = fallbackX;
+        maxX = fallbackX;
     }
     if (maxY < minY) {
         os_log_debug(OS_LOG_DEFAULT, "Floating button vertical bounds collapsed; falling back to minimum y.");
-        maxY = minY;
+        CGFloat fallbackY = fmax((mainView.bounds.size.height - kFloatingButtonSize) * 0.5f, 0.0f);
+        minY = fallbackY;
+        maxY = fallbackY;
     }
 
     return CGRectMake(minX, minY, maxX - minX, maxY - minY);
@@ -115,8 +119,8 @@ bool isOpened = false;
 
 - (CGPoint)clampedButtonOriginForOrigin:(CGPoint)origin inView:(UIView *)mainView {
     CGRect bounds = [self floatingButtonBoundsForView:mainView];
-    CGFloat clampedX = fmin(fmax(origin.x, CGRectGetMinX(bounds)), CGRectGetMaxX(bounds));
-    CGFloat clampedY = fmin(fmax(origin.y, CGRectGetMinY(bounds)), CGRectGetMaxY(bounds));
+    CGFloat clampedX = CGRectGetWidth(bounds) <= 0.0f ? CGRectGetMinX(bounds) : fmin(fmax(origin.x, CGRectGetMinX(bounds)), CGRectGetMaxX(bounds));
+    CGFloat clampedY = CGRectGetHeight(bounds) <= 0.0f ? CGRectGetMinY(bounds) : fmin(fmax(origin.y, CGRectGetMinY(bounds)), CGRectGetMaxY(bounds));
     return CGPointMake(clampedX, clampedY);
 }
 
@@ -257,11 +261,7 @@ bool isOpened = false;
     VisibleMenuButton.frame = initialFrame;
     VisibleMenuButton.backgroundColor = [UIColor clearColor];
     VisibleMenuButton.layer.cornerRadius = VisibleMenuButton.frame.size.width * 0.5f;
-    VisibleMenuButton.layer.masksToBounds = NO;
-    VisibleMenuButton.layer.shadowColor = [UIColor blackColor].CGColor;
-    VisibleMenuButton.layer.shadowOpacity = 0.25f;
-    VisibleMenuButton.layer.shadowRadius = 10.0f;
-    VisibleMenuButton.layer.shadowOffset = CGSizeMake(0, 6);
+    VisibleMenuButton.layer.masksToBounds = YES;
     [VisibleMenuButton setBackgroundImage:menuIconImage forState:UIControlStateNormal];
     [hideRecordView addSubview:VisibleMenuButton];
     [self applyFloatingButtonFrame:initialFrame animated:NO];
