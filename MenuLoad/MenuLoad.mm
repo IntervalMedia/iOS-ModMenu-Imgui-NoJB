@@ -7,6 +7,7 @@ https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
 
 
 #import <UIKit/UIKit.h>
+#import <os/log.h>
 #include "Includes.h"
 
 @interface MenuLoad()

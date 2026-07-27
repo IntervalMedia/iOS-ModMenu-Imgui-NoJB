@@ -28,7 +28,7 @@ struct MockEspEntity {
     float HealthOffset;
 };
 
-void drawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, float healthRatio) {
+void DrawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, float healthRatio) {
     const float barWidth = 6.0f;
     const float barPadding = 8.0f;
     ImVec2 barMin = ImVec2(topLeft.x - barPadding - barWidth, topLeft.y);
@@ -93,7 +93,7 @@ void UserMenu::RenderingMenu()
 
     ImDrawList* drawList = ImGui::GetBackgroundDrawList();
     const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-    const ImVec2 screenCenter = ImVec2(displaySize.x * 0.5f, displaySize.y * 0.15f);
+    const ImVec2 snaplineOrigin = ImVec2(displaySize.x * 0.5f, displaySize.y * 0.15f);
     const float time = (float)ImGui::GetTime();
 
     drawList->AddText(ImVec2(18.0f, 18.0f), IM_COL32(255, 255, 255, 235), "ESP OVERLAY");
@@ -119,7 +119,7 @@ void UserMenu::RenderingMenu()
         float healthRatio = 0.35f + fabsf(sinf(time * 0.75f + entity.HealthOffset)) * 0.6f;
         float distanceMeters = 18.0f + fabsf(cosf(time * 0.55f + entity.PhaseOffset)) * 42.0f;
 
-        drawList->AddLine(screenCenter, ImVec2(head.x, boxMax.y), entity.Color, 1.8f);
+        drawList->AddLine(snaplineOrigin, ImVec2(head.x, boxMax.y), entity.Color, 1.8f);
         drawList->AddCircleFilled(head, 4.0f, entity.Color);
         drawList->AddCircle(head, 9.0f + sinf(oscillation * 2.0f) * 1.5f, entity.Color, 24, 1.2f);
         drawList->AddRect(boxMin, boxMax, entity.Color, 5.0f, 0, 2.0f);
