@@ -16,6 +16,11 @@ constexpr int kHealthBarFillBlue = 90;
 constexpr int kHealthBarFillAlpha = 230;
 constexpr int kInfoLabelBufferLength = 96;
 constexpr int kHealthLabelBufferLength = 48;
+constexpr float kOverlayHeaderX = 18.0f;
+constexpr float kOverlayHeaderY = 18.0f;
+constexpr float kOverlaySubheaderY = 38.0f;
+constexpr float kOverlayStatusRightInset = 210.0f;
+constexpr float kSnaplineThickness = 1.8f;
 constexpr float kMarkerInnerRadius = 4.0f;
 constexpr float kMarkerOuterBaseRadius = 9.0f;
 constexpr float kMarkerPulseAmplitude = 1.5f;
@@ -40,6 +45,7 @@ struct MockEspState {
     float BoxHeight;
     float HealthRatio;
     float DistanceMeters;
+    float MarkerOuterRadius;
 };
 
 void DrawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, float healthRatio) {
@@ -61,18 +67,18 @@ void DrawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, fl
 void DrawOverlayStatus(ImDrawList* drawList, const ImVec2& displaySize, int trackedCount) {
     char trackedLabel[kInfoLabelBufferLength];
     snprintf(trackedLabel, sizeof(trackedLabel), "%d MOCK TARGETS TRACKED", trackedCount);
-    drawList->AddText(ImVec2(18.0f, 18.0f), IM_COL32(255, 255, 255, 235), "ESP OVERLAY");
-    drawList->AddText(ImVec2(18.0f, 38.0f), IM_COL32(120, 255, 180, 225), trackedLabel);
-    drawList->AddText(ImVec2(displaySize.x - 210.0f, 18.0f), IM_COL32(255, 210, 120, 225), "DEMO SIGNAL: STABLE");
+    drawList->AddText(ImVec2(kOverlayHeaderX, kOverlayHeaderY), IM_COL32(255, 255, 255, 235), "ESP OVERLAY");
+    drawList->AddText(ImVec2(kOverlayHeaderX, kOverlaySubheaderY), IM_COL32(120, 255, 180, 225), trackedLabel);
+    drawList->AddText(ImVec2(displaySize.x - kOverlayStatusRightInset, kOverlayHeaderY), IM_COL32(255, 210, 120, 225), "DEMO SIGNAL: STABLE");
 }
 
 void DrawEspSnapline(ImDrawList* drawList, const ImVec2& origin, const MockEspState& state, ImU32 color) {
-    drawList->AddLine(origin, ImVec2(state.Head.x, state.BoxMax.y), color, 1.8f);
+    drawList->AddLine(origin, ImVec2(state.Head.x, state.BoxMax.y), color, kSnaplineThickness);
 }
 
-void DrawEspMarker(ImDrawList* drawList, const MockEspState& state, ImU32 color, float oscillation) {
+void DrawEspMarker(ImDrawList* drawList, const MockEspState& state, ImU32 color) {
     drawList->AddCircleFilled(state.Head, kMarkerInnerRadius, color);
-    drawList->AddCircle(state.Head, kMarkerOuterBaseRadius + sinf(oscillation * 2.0f) * kMarkerPulseAmplitude, color, kMarkerSegments, kMarkerOutlineThickness);
+    drawList->AddCircle(state.Head, state.MarkerOuterRadius, color, kMarkerSegments, kMarkerOutlineThickness);
 }
 
 void DrawEspBox(ImDrawList* drawList, const MockEspState& state, ImU32 color) {
@@ -182,13 +188,14 @@ void UserMenu::RenderingMenu()
             boxHeight,
             0.35f + fabsf(sinf(time * 0.75f + entity.HealthOffset)) * 0.6f,
             18.0f + fabsf(cosf(time * 0.55f + entity.PhaseOffset)) * 42.0f,
+            kMarkerOuterBaseRadius + sinf(oscillation * 2.0f) * kMarkerPulseAmplitude,
         };
 
         if (KTempVars.ShowEspSnaplines) {
             DrawEspSnapline(drawList, snaplineOrigin, state, entity.Color);
         }
         if (KTempVars.ShowEspMarkers) {
-            DrawEspMarker(drawList, state, entity.Color, oscillation);
+            DrawEspMarker(drawList, state, entity.Color);
         }
         if (KTempVars.ShowEspBoxes) {
             DrawEspBox(drawList, state, entity.Color);
