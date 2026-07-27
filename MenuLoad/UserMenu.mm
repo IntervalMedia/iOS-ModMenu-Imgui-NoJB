@@ -161,16 +161,16 @@ void UserMenu::RenderingMenu()
     const ImVec2 snaplineOrigin = ImVec2(displaySize.x * 0.5f, displaySize.y * 0.15f);
     const float time = (float)ImGui::GetTime();
 
+    if (!KTempVars.ShowEspOverlay) {
+        ImGui::End();
+        return;
+    }
+
     const MockEspEntity entities[] = {
         { "SCOUT-01", 0.0f, 0.27f, 0.18f, 122.0f, 0.42f, IM_COL32(90, 220, 255, 255), 0.15f },
         { "HEAVY-02", 1.8f, 0.18f, 0.25f, 148.0f, 0.46f, IM_COL32(255, 110, 110, 255), 0.45f },
         { "DRONE-03", 3.5f, 0.31f, 0.13f, 96.0f, 0.55f, IM_COL32(255, 215, 90, 255), 0.72f },
     };
-
-    if (!KTempVars.ShowEspOverlay) {
-        ImGui::End();
-        return;
-    }
 
     DrawOverlayStatus(drawList, displaySize, IM_ARRAYSIZE(entities));
 
