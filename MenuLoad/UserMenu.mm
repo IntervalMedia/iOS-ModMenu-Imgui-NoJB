@@ -14,6 +14,9 @@ constexpr ImU32 kHealthBarBackgroundColor = IM_COL32(18, 24, 30, 180);
 constexpr float kMaxColorValue = 255.0f;
 constexpr int kHealthBarFillBlue = 90;
 constexpr int kHealthBarFillAlpha = 230;
+constexpr float kMenuWindowWidth = 275.0f;
+constexpr float kMenuWindowHeight = 250.0f;
+constexpr int kTrackedLabelBufferLength = 40;
 constexpr int kInfoLabelBufferLength = 96;
 constexpr int kHealthLabelBufferLength = 48;
 constexpr float kOverlayHeaderX = 18.0f;
@@ -65,7 +68,7 @@ void DrawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, fl
 }
 
 void DrawOverlayStatus(ImDrawList* drawList, const ImVec2& displaySize, int trackedCount) {
-    char trackedLabel[kInfoLabelBufferLength];
+    char trackedLabel[kTrackedLabelBufferLength];
     snprintf(trackedLabel, sizeof(trackedLabel), "%d MOCK TARGETS TRACKED", trackedCount);
     drawList->AddText(ImVec2(kOverlayHeaderX, kOverlayHeaderY), IM_COL32(255, 255, 255, 235), "ESP OVERLAY");
     drawList->AddText(ImVec2(kOverlayHeaderX, kOverlaySubheaderY), IM_COL32(120, 255, 180, 225), trackedLabel);
@@ -104,7 +107,7 @@ void UserMenu::DrawMenu()
     //ImVec2 menuPos = ImGui::GetWindowPos();
 	//ImVec2 windowsize = ImGui::GetWindowSize();
 
-    ImVec2 WindowSize = ImVec2(275, 250);
+    ImVec2 WindowSize = ImVec2(kMenuWindowWidth, kMenuWindowHeight);
     ImGui::SetNextWindowSize(WindowSize, ImGuiCond_Once);
 
     ImVec2 WindowPosition = ImVec2((SCREEN_WIDTH - WindowSize.x) / 2, (SCREEN_HEIGHT - WindowSize.y) / 2);
