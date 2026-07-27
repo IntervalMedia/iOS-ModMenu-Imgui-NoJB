@@ -65,6 +65,11 @@ struct GlobalVariables
 
     bool StreamerMode = false; //Hide the menu during recording
     bool MoveMenu = false; //Move the menu
+    bool ShowEspOverlay = true; //show the mock ESP overlay
+    bool ShowEspSnaplines = true; //show ESP snaplines
+    bool ShowEspBoxes = true; //show ESP boxes
+    bool ShowEspLabels = true; //show ESP labels
+    bool ShowEspHealthBars = true; //show ESP health bars
 
     float CameraFOV = 90.0f; //slider in MenuLoad -> UserMenu.mm
 
