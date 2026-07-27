@@ -160,7 +160,6 @@ bool isOpened = false;
 }
 
 - (void)updateFloatingButtonVisualScale:(CGFloat)scale animated:(BOOL)animated {
-    KTempVars.FloatingButtonScale = scale;
     CGAffineTransform transform = CGAffineTransformMakeScale(scale, scale);
     void (^updates)(void) = ^{
         VisibleMenuButton.transform = transform;

@@ -66,8 +66,6 @@ struct GlobalVariables
     bool StreamerMode = false; //Hide the menu during recording
     bool MoveMenu = false; //Move the menu
 
-    float FloatingButtonScale = 1.0f;
-
     float CameraFOV = 90.0f; //slider in MenuLoad -> UserMenu.mm
 
 };

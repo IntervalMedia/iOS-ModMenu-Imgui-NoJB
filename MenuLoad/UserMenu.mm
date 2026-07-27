@@ -11,6 +11,7 @@ https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
 
 namespace {
 constexpr ImU32 kHealthBarBackgroundColor = IM_COL32(18, 24, 30, 180);
+constexpr float kMaxColorValue = 255.0f;
 constexpr int kHealthBarFillBlue = 90;
 constexpr int kHealthBarFillAlpha = 230;
 constexpr int kInfoLabelBufferLength = 96;
@@ -38,7 +39,7 @@ void drawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, fl
     float filledTop = barMax.y - (height * clampedHealth);
     ImVec2 fillMin = ImVec2(barMin.x + 1.0f, filledTop);
     ImVec2 fillMax = ImVec2(barMax.x - 1.0f, barMax.y - 1.0f);
-    ImU32 fillColor = IM_COL32((int)((1.0f - clampedHealth) * 255.0f), (int)(clampedHealth * kHealthBarFillAlpha), kHealthBarFillBlue, kHealthBarFillAlpha);
+    ImU32 fillColor = IM_COL32((int)((1.0f - clampedHealth) * kMaxColorValue), (int)(clampedHealth * kHealthBarFillAlpha), kHealthBarFillBlue, kHealthBarFillAlpha);
     drawList->AddRectFilled(fillMin, fillMax, fillColor, 2.0f);
     drawList->AddRect(barMin, barMax, IM_COL32(255, 255, 255, 80), 3.0f, 0, 1.0f);
 }
