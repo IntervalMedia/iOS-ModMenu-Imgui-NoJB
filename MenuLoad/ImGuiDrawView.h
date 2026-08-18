@@ -1,21 +1,17 @@
-/*
-IOS Theos Template Komaru
-Jailed (NoJB) Mod Menu Template for iOS Games
-By aq9
-https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
-*/
-
-
 #import <UIKit/UIKit.h>
-NS_ASSUME_NONNULL_BEGIN
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface ImGuiDrawView : UIViewController
 
-+ (void)showChange:(BOOL)open;
++ (void)setMenuVisible:(BOOL)visible;
 + (BOOL)isMenuShowing;
-- (void)updateIOWithTouchEvent:(UIEvent *)event;
 
+// Legacy name kept so existing template code continues to compile.
++ (void)showChange:(BOOL)open;
+
+// MenuInteraction forwards UIKit touch events through this single entry point.
+- (void)updateIOWithTouchEvent:(UIEvent *)event;
 
 @end
 
