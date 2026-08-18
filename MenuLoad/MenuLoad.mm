@@ -221,12 +221,6 @@ UIWindow *ActiveWindow() {
     BOOL visible = ![ImGuiDrawView isMenuShowing];
     [ImGuiDrawView setMenuVisible:visible];
     self.touchView.userInteractionEnabled = visible;
-
-    if (!visible) {
-        // Ensure ImGui does not retain a pressed pointer when the menu closes mid-touch.
-        UIEvent *event = gesture.view.window ? nil : nil;
-        (void)event;
-    }
 }
 
 - (void)moveLauncher:(UIPanGestureRecognizer *)gesture {
