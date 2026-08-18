@@ -1,28 +1,44 @@
 # AI Agent Instructions
 
 ## Purpose
-This repository is an iOS Theos-based tweak template for a jailed (non-jailbroken) mod menu with an ImGui UI layer. Use the notes below when making changes or answering questions.
+This repository is an iOS Theos-based tweak template for a jailed (non-jailbroken) mod menu with a Dear ImGui + Metal UI layer. Keep new work modular so the template remains useful as a starting point for future projects.
 
 ## Theos build system notes
-- **Build tooling**: The project is built as a Theos tweak using the `Makefile` in the repo root. It defines `TWEAK_NAME = KTemp` and builds arm64 for `iphone:clang:latest:latest`.
-- **Source inclusion**: The tweak pulls Objective-C/Objective-C++ sources from `MenuLoad/`, `Source/`, and ImGui sources under `ImGui/` via wildcard globs in the Makefile.
-- **Typical commands** (from Theos conventions): `make`, `make package`, and `make install` are the usual entry points. Ensure the Theos toolchain is installed as described in the README.
+- **Build tooling**: The project is built as a Theos tweak using the root `Makefile` with `TWEAK_NAME = KTemp` and arm64 targeting.
+- **Source inclusion**: Objective-C/Objective-C++ sources under `MenuLoad/` and `Source/` are included by the existing wildcard rules. ImGui sources live under `ImGui/`.
+- **Typical commands**: `make`, `make package`, and `make install`.
 
-## Entry points / runtime flow
-- **Initial load**: `MenuLoad` uses `+load` to initialize the UI after a delay (via a timer) and inserts the ImGui view and menu button into the app window hierarchy.
-- **ImGui bootstrap**: `ImGuiDrawView` initializes the Metal device, ImGui context, and font in `-initWithNibName:bundle:`. It calls `BasicCheats.Initialize()` to start the gameplay loop/hack thread once the view is created.
-- **Render loop**: `ImGuiDrawView` implements `MTKViewDelegate` and draws ImGui every frame in `-drawInMTKView:`. Menu visibility is gated by `MenDeal` and toggled from the floating button.
-- **Hack loop**: `BasicHacks::Initialize()` starts a GCD timer that repeatedly calls `BasicHacks::HacksThread()` at ~30 FPS to apply memory edits (e.g., FOV changes).
+## Runtime flow
+1. `TweakManager` is the single tweak bootstrap point. Its `+load` preserves the template's short delayed startup and calls `start` once.
+2. `TweakManager` initializes non-UI feature logic (`BasicCheats.Initialize()`) and starts `MenuLoad`.
+3. `MenuLoad` owns UIKit composition: active-window discovery, the secure capture host used by streamer mode, the floating launcher, and the touch-routing view.
+4. `ImGuiDrawView` owns the `MTKView`, Metal device/queue, and one concise per-frame render loop.
+5. `ImGuiController` owns the Dear ImGui lifecycle: context/font/backend initialization, `NewFrame`, render submission, touch-to-ImGui input translation, and shutdown.
+6. `UserMenu` contains only ImGui drawing. `Draw(bool menuVisible)` draws the interactive menu when visible and the non-interactive overlay every frame.
+7. `AppState` contains shared runtime values. `KTempVars` remains as a compatibility alias so existing feature code can migrate incrementally.
 
-## Codebase system design
-- **UI layer**: `MenuLoad/` owns UI composition (floating button + ImGui view) and touch routing for the menu interaction layer.
-- **Menu content**: `UserMenu` defines ImGui windows and menu state binding to `KTempVars` values (e.g., FOV, streamer mode).
-- **Gameplay logic**: `Source/BasicHacks.mm` contains the example “hack” loop and offsets for an Unreal Engine-based title. It uses `KomaruPatch` for memory reads/writes.
-- **Memory utilities**: `utils/KPatch.hpp` implements guarded read/write helpers using `mach_vm_region` and `vm_read_overwrite` for safety on jailed devices.
-- **ImGui integration**: Core ImGui sources live in `ImGui/`, with the Metal backend invoked from the ImGui draw view.
+## Design boundaries
+- **TweakManager**: startup/coordinator only. Do not put rendering, hooks, or feature implementation here.
+- **MenuLoad**: UIKit overlay/controller only. Keep host-app window handling, launcher behavior, touch routing, and streamer-mode presentation here.
+- **ImGuiDrawView**: Metal frame orchestration only. A frame should read as: acquire pass -> begin ImGui frame -> draw menu -> render -> present.
+- **ImGuiController**: all Dear ImGui lifecycle/backend/input details.
+- **UserMenu**: ImGui controls and draw-list code only. Avoid memory writes or gameplay logic inside widgets.
+- **AppState**: lightweight shared state with no UIKit or Metal dependencies.
+- **Source/**: feature/game logic. UI should bind to state rather than performing memory edits directly.
+- **utils/**: low-level reusable helpers such as `KPatch.hpp`.
 
-## Notable TODOs / next features (expected follow-up work)
-- **Offset maintenance**: Update the Unreal Engine offsets in `Source/BasicHacks.mm` per target game version and platform updates. This requires per-title reverse engineering and validation in runtime tests.
-- **Feature wiring**: Add additional menu toggles and tie them to new memory edits in `BasicHacks` or new modules. This requires new `KTempVars` fields and corresponding ImGui controls in `UserMenu`.
-- **UI polish**: Improve the floating menu button UX (snap-to-edge, persistence, or scaling). This requires UI state handling in `MenuLoad`.
-- **Rendering overlay**: Fill out the rendering-only overlay in `UserMenu::RenderingMenu()` for ESP or debug visuals, which requires new ImGui draw calls and access to game state.
+## Dependency guidance
+Prefer explicit includes. `Includes.h` exists only as a compatibility header for older feature modules and should stay small. Do not turn it back into an umbrella header importing Metal, ImGui internals, menu controllers, and unrelated STL headers.
+
+Features should depend on state, not ImGui. For example, an ImGui checkbox should update an `AppState` field, while a feature module reads that field and performs its own work.
+
+## Input and overlays
+- `MenuInteraction` forwards touches only when they fall inside the current ImGui menu bounds, allowing the host app to receive touches elsewhere.
+- The floating launcher uses one transparent input surface plus one visual mirror inside the capture host. Keep this separation because the visual layer may be hosted inside the secure text-field hierarchy for streamer mode.
+- Rendering-only overlays should use ImGui draw lists directly; do not create invisible full-screen ImGui windows unless input/layout behavior genuinely requires one.
+
+## Extension points
+- Add new menu controls in `UserMenu` and store their state in `AppState` or a dedicated feature state object.
+- Add feature implementations under `Source/` rather than expanding `UserMenu`.
+- If feature count grows, split `AppState` into smaller domain-specific state objects instead of adding unrelated globals.
+- Prefer dedicated hook/feature modules over placing hooks in the renderer or menu controller.
