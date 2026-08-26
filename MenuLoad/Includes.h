@@ -1,79 +1,18 @@
-/*
-IOS Theos Template Komaru
-Jailed (NoJB) Mod Menu Template for iOS Games
-By aq9
-https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
-*/
-
-
-
 #pragma once
 
-#include "ImGuiDrawView.h"
-#include "MenuLoad.h"
-
-#include "../ImGui/imgui.h"
-#include "../ImGui/imgui_internal.h"
-#include "../ImGui/imgui_impl_metal.h"
+#include "AppState.h"
 #include "../utils/KPatch.hpp"
 
-#include <vector>
-#include <map>
 #include <unistd.h>
-#include <string.h>
-#include <vector>
-#include <functional>
-#include <iostream>
-#include <queue>
-#include <pthread/pthread.h>
 #include <substrate.h>
 
-#import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
 #import <Foundation/Foundation.h>
-#import <Security/Security.h>
-
-#import <os/log.h>
+#import <UIKit/UIKit.h>
 #import <dlfcn.h>
 #import <mach-o/dyld.h>
-#import <stdio.h>
 #import <mach/mach.h>
 
-#define SCREEN_WIDTH [UIScreen mainScreen].bounds.size.width
-#define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
-#define SCREEN_SCALE [UIScreen mainScreen].scale
-#define timer(sec) dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sec * NSEC_PER_SEC), dispatch_get_main_queue(), ^
-
-extern MenuInteraction* menuTouchView;
-extern UIButton* InvisibleMenuButton;
-extern UIButton* VisibleMenuButton;
-extern UITextField* hideRecordTextfield;
-extern UIView* hideRecordView;
-extern ImFont* Font;
-
-struct GlobalVariables
-{
-    static GlobalVariables& GetInstance() 
-    {
-        static GlobalVariables Instance;
-        return Instance;
-    }
-
-    ImFont* Font;
-    ImVec2 MenuSize   = ImVec2(0, 0);
-    ImVec2 MenuOrigin = ImVec2(0, 0);
-
-    bool StreamerMode = false; //Hide the menu during recording
-    bool MoveMenu = false; //Move the menu
-    bool ShowEspOverlay = true; //Show the mock ESP overlay
-    bool ShowEspSnaplines = true; //Show ESP snaplines
-    bool ShowEspMarkers = true; //Show ESP markers
-    bool ShowEspBoxes = true; //Show ESP boxes
-    bool ShowEspLabels = true; //Show ESP labels
-    bool ShowEspHealthBars = true; //Show ESP health bars
-
-    float CameraFOV = 90.0f; //slider in MenuLoad -> UserMenu.mm
-
-};
-
-static GlobalVariables& KTempVars = GlobalVariables::GetInstance();
+// Compatibility helpers for existing feature modules.
+#define SCREEN_WIDTH UIScreen.mainScreen.bounds.size.width
+#define SCREEN_HEIGHT UIScreen.mainScreen.bounds.size.height
+#define SCREEN_SCALE UIScreen.mainScreen.scale

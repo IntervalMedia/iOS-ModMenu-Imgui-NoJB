@@ -1,24 +1,20 @@
-/*
-IOS Theos Template Komaru
-Jailed (NoJB) Mod Menu Template for iOS Games
-By aq9
-https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
-*/
-
-
 #include "UserMenu.h"
-#include "Includes.h"
+#include "AppState.h"
+
+#import "MenuLoad.h"
+
+#include "../ImGui/imgui.h"
+
+#include <cmath>
+#include <cstdio>
 
 namespace {
+constexpr float kMenuWindowWidth = 275.0f;
+constexpr float kMenuWindowHeight = 250.0f;
 constexpr ImU32 kHealthBarBackgroundColor = IM_COL32(18, 24, 30, 180);
 constexpr float kMaxColorValue = 255.0f;
 constexpr int kHealthBarFillBlue = 90;
 constexpr int kHealthBarFillAlpha = 230;
-constexpr float kMenuWindowWidth = 275.0f;
-constexpr float kMenuWindowHeight = 250.0f;
-constexpr int kTrackedLabelBufferLength = 40;
-constexpr int kInfoLabelBufferLength = 96;
-constexpr int kHealthLabelBufferLength = 48;
 constexpr float kOverlayHeaderX = 18.0f;
 constexpr float kOverlayHeaderY = 18.0f;
 constexpr float kOverlaySubheaderY = 38.0f;
@@ -31,104 +27,148 @@ constexpr int kMarkerSegments = 24;
 constexpr float kMarkerOutlineThickness = 1.2f;
 
 struct MockEspEntity {
-    const char* Name;
-    float PhaseOffset;
-    float OrbitScaleX;
-    float OrbitScaleY;
-    float HeightScale;
-    float WidthScale;
-    ImU32 Color;
-    float HealthOffset;
+    const char *name;
+    float phaseOffset;
+    float orbitScaleX;
+    float orbitScaleY;
+    float heightScale;
+    float widthScale;
+    ImU32 color;
+    float healthOffset;
 };
 
 struct MockEspState {
-    ImVec2 Head;
-    ImVec2 BoxMin;
-    ImVec2 BoxMax;
-    float BoxHeight;
-    float HealthRatio;
-    float DistanceMeters;
-    float MarkerOuterRadius;
+    ImVec2 head;
+    ImVec2 boxMin;
+    ImVec2 boxMax;
+    float boxHeight;
+    float healthRatio;
+    float distanceMeters;
+    float markerOuterRadius;
 };
 
-void DrawHealthBar(ImDrawList* drawList, const ImVec2& topLeft, float height, float healthRatio) {
-    const float barWidth = 6.0f;
-    const float barPadding = 8.0f;
-    ImVec2 barMin = ImVec2(topLeft.x - barPadding - barWidth, topLeft.y);
-    ImVec2 barMax = ImVec2(barMin.x + barWidth, topLeft.y + height);
+void DrawHealthBar(ImDrawList *drawList, const ImVec2& topLeft, float height, float healthRatio) {
+    constexpr float barWidth = 6.0f;
+    constexpr float barPadding = 8.0f;
+
+    ImVec2 barMin(topLeft.x - barPadding - barWidth, topLeft.y);
+    ImVec2 barMax(barMin.x + barWidth, topLeft.y + height);
     drawList->AddRectFilled(barMin, barMax, kHealthBarBackgroundColor, 3.0f);
 
-    float clampedHealth = fminf(fmaxf(healthRatio, 0.0f), 1.0f);
-    float filledTop = barMax.y - (height * clampedHealth);
-    ImVec2 fillMin = ImVec2(barMin.x + 1.0f, filledTop);
-    ImVec2 fillMax = ImVec2(barMax.x - 1.0f, barMax.y - 1.0f);
-    ImU32 fillColor = IM_COL32((int)((1.0f - clampedHealth) * kMaxColorValue), (int)(clampedHealth * kMaxColorValue), kHealthBarFillBlue, kHealthBarFillAlpha);
+    const float clampedHealth = fminf(fmaxf(healthRatio, 0.0f), 1.0f);
+    const float filledTop = barMax.y - (height * clampedHealth);
+    const ImVec2 fillMin(barMin.x + 1.0f, filledTop);
+    const ImVec2 fillMax(barMax.x - 1.0f, barMax.y - 1.0f);
+    const ImU32 fillColor = IM_COL32(
+        (int)((1.0f - clampedHealth) * kMaxColorValue),
+        (int)(clampedHealth * kMaxColorValue),
+        kHealthBarFillBlue,
+        kHealthBarFillAlpha
+    );
+
     drawList->AddRectFilled(fillMin, fillMax, fillColor, 2.0f);
     drawList->AddRect(barMin, barMax, IM_COL32(255, 255, 255, 80), 3.0f, 0, 1.0f);
 }
 
-void DrawOverlayStatus(ImDrawList* drawList, const ImVec2& displaySize, int trackedCount) {
-    char trackedLabel[kTrackedLabelBufferLength];
+void DrawOverlayStatus(ImDrawList *drawList, const ImVec2& displaySize, int trackedCount) {
+    char trackedLabel[40];
     snprintf(trackedLabel, sizeof(trackedLabel), "%d MOCK TARGETS TRACKED", trackedCount);
-    drawList->AddText(ImVec2(kOverlayHeaderX, kOverlayHeaderY), IM_COL32(255, 255, 255, 235), "ESP OVERLAY");
-    drawList->AddText(ImVec2(kOverlayHeaderX, kOverlaySubheaderY), IM_COL32(120, 255, 180, 225), trackedLabel);
-    drawList->AddText(ImVec2(displaySize.x - kOverlayStatusRightInset, kOverlayHeaderY), IM_COL32(255, 210, 120, 225), "DEMO SIGNAL: STABLE");
+
+    drawList->AddText(ImVec2(kOverlayHeaderX, kOverlayHeaderY),
+                      IM_COL32(255, 255, 255, 235), "ESP OVERLAY");
+    drawList->AddText(ImVec2(kOverlayHeaderX, kOverlaySubheaderY),
+                      IM_COL32(120, 255, 180, 225), trackedLabel);
+    drawList->AddText(ImVec2(displaySize.x - kOverlayStatusRightInset, kOverlayHeaderY),
+                      IM_COL32(255, 210, 120, 225), "DEMO SIGNAL: STABLE");
 }
 
-void DrawEspSnapline(ImDrawList* drawList, const ImVec2& origin, const MockEspState& state, ImU32 color) {
-    drawList->AddLine(origin, ImVec2(state.Head.x, state.BoxMax.y), color, kSnaplineThickness);
+void DrawEspEntity(ImDrawList *drawList,
+                   const ImVec2& snaplineOrigin,
+                   const MockEspEntity& entity,
+                   const MockEspState& state) {
+    if (KTempVars.ShowEspSnaplines) {
+        drawList->AddLine(snaplineOrigin,
+                          ImVec2(state.head.x, state.boxMax.y),
+                          entity.color,
+                          kSnaplineThickness);
+    }
+
+    if (KTempVars.ShowEspMarkers) {
+        drawList->AddCircleFilled(state.head, kMarkerInnerRadius, entity.color);
+        drawList->AddCircle(state.head,
+                            state.markerOuterRadius,
+                            entity.color,
+                            kMarkerSegments,
+                            kMarkerOutlineThickness);
+    }
+
+    if (KTempVars.ShowEspBoxes) {
+        drawList->AddRect(state.boxMin, state.boxMax, entity.color, 5.0f, 0, 2.0f);
+        drawList->AddRect(ImVec2(state.boxMin.x - 2.0f, state.boxMin.y - 2.0f),
+                          ImVec2(state.boxMax.x + 2.0f, state.boxMax.y + 2.0f),
+                          IM_COL32(255, 255, 255, 45),
+                          6.0f,
+                          0,
+                          1.0f);
+    }
+
+    if (KTempVars.ShowEspHealthBars) {
+        DrawHealthBar(drawList, state.boxMin, state.boxHeight, state.healthRatio);
+    }
+
+    if (KTempVars.ShowEspLabels) {
+        char infoLabel[96];
+        snprintf(infoLabel, sizeof(infoLabel), "%s  %.0fm", entity.name, state.distanceMeters);
+        drawList->AddText(ImVec2(state.boxMin.x, state.boxMin.y - 18.0f),
+                          IM_COL32(255, 255, 255, 235), infoLabel);
+
+        char healthLabel[48];
+        snprintf(healthLabel, sizeof(healthLabel), "HP %d%%", (int)(state.healthRatio * 100.0f));
+        drawList->AddText(ImVec2(state.boxMin.x, state.boxMax.y + 8.0f),
+                          IM_COL32(190, 255, 200, 225), healthLabel);
+    }
+}
+} // namespace
+
+void UserMenu::Draw(bool menuVisible) {
+    if (menuVisible) {
+        DrawMainMenu();
+    }
+
+    DrawOverlay();
 }
 
-void DrawEspMarker(ImDrawList* drawList, const MockEspState& state, ImU32 color) {
-    drawList->AddCircleFilled(state.Head, kMarkerInnerRadius, color);
-    drawList->AddCircle(state.Head, state.MarkerOuterRadius, color, kMarkerSegments, kMarkerOutlineThickness);
-}
+void UserMenu::DrawMainMenu() {
+    const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+    const ImVec2 windowSize(kMenuWindowWidth, kMenuWindowHeight);
+    const ImVec2 windowPosition(
+        (displaySize.x - windowSize.x) * 0.5f,
+        (displaySize.y - windowSize.y) * 0.5f
+    );
 
-void DrawEspBox(ImDrawList* drawList, const MockEspState& state, ImU32 color) {
-    drawList->AddRect(state.BoxMin, state.BoxMax, color, 5.0f, 0, 2.0f);
-    drawList->AddRect(ImVec2(state.BoxMin.x - 2.0f, state.BoxMin.y - 2.0f), ImVec2(state.BoxMax.x + 2.0f, state.BoxMax.y + 2.0f), IM_COL32(255, 255, 255, 45), 6.0f, 0, 1.0f);
-}
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Once);
+    ImGui::SetNextWindowPos(windowPosition, ImGuiCond_Once);
 
-void DrawEspLabels(ImDrawList* drawList, const MockEspEntity& entity, const MockEspState& state) {
-    char infoLabel[kInfoLabelBufferLength];
-    snprintf(infoLabel, sizeof(infoLabel), "%s  %.0fm", entity.Name, state.DistanceMeters);
-    drawList->AddText(ImVec2(state.BoxMin.x, state.BoxMin.y - 18.0f), IM_COL32(255, 255, 255, 235), infoLabel);
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+    if (!KTempVars.MoveMenu) {
+        flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    }
 
-    char healthLabel[kHealthLabelBufferLength];
-    snprintf(healthLabel, sizeof(healthLabel), "HP %d%%", (int)(state.HealthRatio * 100.0f));
-    drawList->AddText(ImVec2(state.BoxMin.x, state.BoxMax.y + 8.0f), IM_COL32(190, 255, 200, 225), healthLabel);
-}
-}
-
-void UserMenu::DrawMenu()
-{
-
-
-    //ImVec2 menuPos = ImGui::GetWindowPos();
-	//ImVec2 windowsize = ImGui::GetWindowSize();
-
-    ImVec2 WindowSize = ImVec2(kMenuWindowWidth, kMenuWindowHeight);
-    ImGui::SetNextWindowSize(WindowSize, ImGuiCond_Once);
-
-    ImVec2 WindowPosition = ImVec2((SCREEN_WIDTH - WindowSize.x) / 2, (SCREEN_HEIGHT - WindowSize.y) / 2);
-    ImGui::SetNextWindowPos(WindowPosition, ImGuiCond_Once);
-
-    ImGuiWindowFlags WindowFlags = KTempVars.MoveMenu ? ImGuiWindowFlags_NoCollapse : ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-
-    if (ImGui::Begin("KomaruTemp", NULL, WindowFlags))
-    {
-        ImGuiWindow* CurrentWindow = ImGui::GetCurrentWindow();
-        KTempVars.MenuSize   = CurrentWindow->Size;
-        KTempVars.MenuOrigin = CurrentWindow->Pos;
+    if (ImGui::Begin("KomaruTemp", nullptr, flags)) {
+        KTempVars.MenuSize = ImGui::GetWindowSize();
+        KTempVars.MenuOrigin = ImGui::GetWindowPos();
 
         ImGui::SliderFloat("FOV Changer", &KTempVars.CameraFOV, 60.0f, 160.0f);
 
-        //misc menu options
         ImGui::Checkbox("Move Menu", &KTempVars.MoveMenu);
         ImGui::SameLine();
-        ImGui::Checkbox("Streamer Mode", &KTempVars.StreamerMode);
+
+        if (ImGui::Checkbox("Streamer Mode", &KTempVars.StreamerMode)) {
+            [MenuLoad applyStreamerMode:KTempVars.StreamerMode];
+        }
+
         ImGui::Separator();
-        ImGui::Text("ESP Overlay");
+        ImGui::TextUnformatted("ESP Overlay");
         ImGui::Checkbox("Enable Overlay", &KTempVars.ShowEspOverlay);
         ImGui::Checkbox("Snaplines", &KTempVars.ShowEspSnaplines);
         ImGui::SameLine();
@@ -137,34 +177,18 @@ void UserMenu::DrawMenu()
         ImGui::SameLine();
         ImGui::Checkbox("Labels", &KTempVars.ShowEspLabels);
         ImGui::Checkbox("Health Bars", &KTempVars.ShowEspHealthBars);
-
     }
+
     ImGui::End();
 }
 
+void UserMenu::DrawOverlay() {
+    if (!KTempVars.ShowEspOverlay) return;
 
-void UserMenu::RenderingMenu()
-{
-    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(SCREEN_WIDTH, SCREEN_HEIGHT), ImGuiCond_Always);
-    ImGui::Begin("RenderMenu", nullptr,
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoBackground |
-        ImGuiWindowFlags_NoScrollbar |
-        ImGuiWindowFlags_NoSavedSettings |
-        ImGuiWindowFlags_NoInputs);
-
-    ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+    ImDrawList *drawList = ImGui::GetBackgroundDrawList();
     const ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-    const ImVec2 snaplineOrigin = ImVec2(displaySize.x * 0.5f, displaySize.y * 0.15f);
+    const ImVec2 snaplineOrigin(displaySize.x * 0.5f, displaySize.y * 0.15f);
     const float time = (float)ImGui::GetTime();
-
-    if (!KTempVars.ShowEspOverlay) {
-        ImGui::End();
-        return;
-    }
 
     const MockEspEntity entities[] = {
         { "SCOUT-01", 0.0f, 0.27f, 0.18f, 122.0f, 0.42f, IM_COL32(90, 220, 255, 255), 0.15f },
@@ -175,48 +199,38 @@ void UserMenu::RenderingMenu()
     DrawOverlayStatus(drawList, displaySize, IM_ARRAYSIZE(entities));
 
     for (const MockEspEntity& entity : entities) {
-        float oscillation = time + entity.PhaseOffset;
-        float normalizedX = 0.5f + cosf(oscillation * 0.8f) * entity.OrbitScaleX;
-        float normalizedY = 0.52f + sinf(oscillation * 1.15f) * entity.OrbitScaleY;
-        ImVec2 head = ImVec2(displaySize.x * normalizedX, displaySize.y * normalizedY);
+        const float oscillation = time + entity.phaseOffset;
+        const float normalizedX = 0.5f + cosf(oscillation * 0.8f) * entity.orbitScaleX;
+        const float normalizedY = 0.52f + sinf(oscillation * 1.15f) * entity.orbitScaleY;
+        const ImVec2 head(displaySize.x * normalizedX, displaySize.y * normalizedY);
 
-        float boxHeight = entity.HeightScale + sinf(oscillation * 1.6f) * 8.0f;
-        float boxWidth = boxHeight * entity.WidthScale;
-        ImVec2 boxMin = ImVec2(head.x - (boxWidth * 0.5f), head.y - (boxHeight * 0.3f));
-        ImVec2 boxMax = ImVec2(head.x + (boxWidth * 0.5f), boxMin.y + boxHeight);
-        MockEspState state = {
+        const float boxHeight = entity.heightScale + sinf(oscillation * 1.6f) * 8.0f;
+        const float boxWidth = boxHeight * entity.widthScale;
+        const ImVec2 boxMin(head.x - boxWidth * 0.5f, head.y - boxHeight * 0.3f);
+        const ImVec2 boxMax(head.x + boxWidth * 0.5f, boxMin.y + boxHeight);
+
+        const MockEspState state = {
             head,
             boxMin,
             boxMax,
             boxHeight,
-            0.35f + fabsf(sinf(time * 0.75f + entity.HealthOffset)) * 0.6f,
-            18.0f + fabsf(cosf(time * 0.55f + entity.PhaseOffset)) * 42.0f,
+            0.35f + fabsf(sinf(time * 0.75f + entity.healthOffset)) * 0.6f,
+            18.0f + fabsf(cosf(time * 0.55f + entity.phaseOffset)) * 42.0f,
             kMarkerOuterBaseRadius + sinf(oscillation * 2.0f) * kMarkerPulseAmplitude,
         };
 
-        if (KTempVars.ShowEspSnaplines) {
-            DrawEspSnapline(drawList, snaplineOrigin, state, entity.Color);
-        }
-        if (KTempVars.ShowEspMarkers) {
-            DrawEspMarker(drawList, state, entity.Color);
-        }
-        if (KTempVars.ShowEspBoxes) {
-            DrawEspBox(drawList, state, entity.Color);
-        }
-        if (KTempVars.ShowEspHealthBars) {
-            DrawHealthBar(drawList, state.BoxMin, state.BoxHeight, state.HealthRatio);
-        }
-        if (KTempVars.ShowEspLabels) {
-            DrawEspLabels(drawList, entity, state);
-        }
+        DrawEspEntity(drawList, snaplineOrigin, entity, state);
     }
-
-    ImGui::End();
 }
 
+void UserMenu::DrawMenu() {
+    DrawMainMenu();
+}
 
-void UserMenu::Initialize()
-{
-    DrawMenu();
-    RenderingMenu();
+void UserMenu::RenderingMenu() {
+    DrawOverlay();
+}
+
+void UserMenu::Initialize() {
+    Draw(true);
 }

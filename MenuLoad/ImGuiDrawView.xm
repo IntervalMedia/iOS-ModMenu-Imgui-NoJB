@@ -1,183 +1,114 @@
-#include "Includes.h"
+#import "ImGuiDrawView.h"
+#import "ImGuiController.h"
+
 #include "UserMenu.h"
-#include "../Font.h"
-#include "../Source/BasicHacks.h"
+
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
 
 @interface ImGuiDrawView () <MTKViewDelegate>
 
-@property (nonatomic, strong) id <MTLDevice> device;
-@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
+@property (nonatomic, strong) id<MTLDevice> device;
+@property (nonatomic, strong) id<MTLCommandQueue> commandQueue;
+@property (nonatomic, strong) ImGuiController *imguiController;
 
 @end
 
 @implementation ImGuiDrawView
 
-static bool MenDeal = true;
+static BOOL sMenuVisible = NO;
 
-- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil
-{
+- (instancetype)init {
+    return [self initWithNibName:nil bundle:nil];
+}
+
+- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil
+                         bundle:(nullable NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (!self) return nil;
+
     _device = MTLCreateSystemDefaultDevice();
+    if (!_device) return nil;
+
     _commandQueue = [_device newCommandQueue];
-
-    if (!self.device) abort();
-
-    BasicCheats.Initialize();
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    ImGui::StyleColorsClassic();
-
-    io.Fonts->Clear();
-
-    ImFontConfig config;
-    config.FontDataOwnedByAtlas = false;
-    Font = io.Fonts->AddFontFromMemoryCompressedBase85TTF(CurvyBase85, 40.f, &config, io.Fonts->GetGlyphRangesChineseFull());
-
-    ImGui_ImplMetal_Init(_device);
-    
-    
+    _imguiController = [[ImGuiController alloc] initWithDevice:_device];
 
     return self;
 }
 
-+ (void)showChange:(BOOL)open
-{
-    MenDeal = open;
++ (void)setMenuVisible:(BOOL)visible {
+    sMenuVisible = visible;
+}
+
++ (void)showChange:(BOOL)open {
+    [self setMenuVisible:open];
 }
 
 + (BOOL)isMenuShowing {
-    return MenDeal;
+    return sMenuVisible;
 }
 
-- (MTKView *)mtkView
-{
+- (MTKView *)mtkView {
     return (MTKView *)self.view;
 }
 
-- (void)loadView
-{
-    CGFloat w = [UIApplication sharedApplication].windows[0].rootViewController.view.frame.size.width;
-    CGFloat h = [UIApplication sharedApplication].windows[0].rootViewController.view.frame.size.height;
-    self.view = [[MTKView alloc] initWithFrame:CGRectMake(0, 0, w, h)];
+- (void)loadView {
+    MTKView *view = [[MTKView alloc] initWithFrame:UIScreen.mainScreen.bounds
+                                           device:self.device];
+    view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.view = view;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    self.mtkView.device = self.device;
-    self.mtkView.delegate = self;
-    self.mtkView.clearColor = MTLClearColorMake(0, 0, 0, 0);
-    self.mtkView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0];
-    self.mtkView.clipsToBounds = YES;
+
+    MTKView *view = self.mtkView;
+    view.delegate = self;
+    view.clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
+    view.backgroundColor = UIColor.clearColor;
+    view.opaque = NO;
+    view.clipsToBounds = YES;
+    view.preferredFramesPerSecond = 60;
+
+    // Touches are routed by MenuInteraction so the renderer itself never blocks the host app.
+    view.userInteractionEnabled = NO;
 }
 
-- (void)updateIOWithTouchEvent:(UIEvent *)event
-{
-    UITouch *anyTouch = event.allTouches.anyObject;
-    CGPoint touchLocation = [anyTouch locationInView:self.view];
-    ImGuiIO &io = ImGui::GetIO();
-    io.MousePos = ImVec2(touchLocation.x, touchLocation.y);
-
-    BOOL hasActiveTouch = NO;
-    for (UITouch *touch in event.allTouches)
-    {
-        if (touch.phase != UITouchPhaseEnded && touch.phase != UITouchPhaseCancelled)
-        {
-            hasActiveTouch = YES;
-            break;
-        }
-    }
-    io.MouseDown[0] = hasActiveTouch;
+- (void)updateIOWithTouchEvent:(UIEvent *)event {
+    [self.imguiController updateInputWithTouchEvent:event inView:self.view];
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    [self updateIOWithTouchEvent:event];
-}
-
-- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    [self updateIOWithTouchEvent:event];
-}
-
-- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    [self updateIOWithTouchEvent:event];
-}
-
-- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    [self updateIOWithTouchEvent:event];
-}
-
-- (void)drawInMTKView:(MTKView*)view
-{
-    hideRecordTextfield.secureTextEntry = KTempVars.StreamerMode; //imgui streamer mode
-
-    ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize.x = view.bounds.size.width;
-    io.DisplaySize.y = view.bounds.size.height;
-
-    CGFloat framebufferScale = view.window.screen.nativeScale ? : UIScreen.mainScreen.nativeScale;
-    io.DisplayFramebufferScale = ImVec2(framebufferScale, framebufferScale);
-    io.DeltaTime = 1 / float(view.preferredFramesPerSecond ? : 60);
+- (void)drawInMTKView:(MTKView *)view {
+    MTLRenderPassDescriptor *renderPassDescriptor = view.currentRenderPassDescriptor;
+    id<CAMetalDrawable> drawable = view.currentDrawable;
+    if (!renderPassDescriptor || !drawable) return;
 
     id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
+    if (!commandBuffer) return;
 
-    if (MenDeal) {
-        [self.view setUserInteractionEnabled:YES];
-        [self.view.superview setUserInteractionEnabled:YES];
-        [menuTouchView setUserInteractionEnabled:YES];
-    }
-    else {
-        [self.view setUserInteractionEnabled:NO];
-        [self.view.superview setUserInteractionEnabled:NO];
-        [menuTouchView setUserInteractionEnabled:NO];
-    }
-    
-    MTLRenderPassDescriptor* renderPassDescriptor = view.currentRenderPassDescriptor;
-    if (renderPassDescriptor != nil)
-    {
-        id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-        [renderEncoder pushDebugGroup:@"Dear ImGui Rendering"];
+    id<MTLRenderCommandEncoder> renderEncoder =
+        [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    if (!renderEncoder) return;
 
-        ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-        ImGui::NewFrame();
-        
-        ImFont* font = ImGui::GetFont();
-        font->Scale = 12.f / font->FontSize;
-        
-        if (MenDeal)
-            Menu.Initialize();  // Initialize menu only if it's open
+    [renderEncoder pushDebugGroup:@"Dear ImGui Rendering"];
 
-        // Call RenderingMenu to render the menu regardless of MenDeal status
-        UserMenu::GetInstance().RenderingMenu();
+    [self.imguiController beginFrameWithView:view
+                        renderPassDescriptor:renderPassDescriptor];
 
+    UserMenu::GetInstance().Draw([ImGuiDrawView isMenuShowing]);
 
-        ImGui::Render();
-        ImDrawData* draw_data = ImGui::GetDrawData();
-        ImGui_ImplMetal_RenderDrawData(draw_data, commandBuffer, renderEncoder);
+    [self.imguiController renderWithCommandBuffer:commandBuffer
+                                    renderEncoder:renderEncoder];
 
-        [renderEncoder popDebugGroup];
-        [renderEncoder endEncoding];
+    [renderEncoder popDebugGroup];
+    [renderEncoder endEncoding];
 
-        [commandBuffer presentDrawable:view.currentDrawable];
-    }
+    [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
 }
 
-- (void)mtkView:(MTKView*)view drawableSizeWillChange:(CGSize)size
-{
-    
+- (void)mtkView:(MTKView *)view drawableSizeWillChange:(CGSize)size {
+    // DisplaySize and framebuffer scale are refreshed in ImGuiController::beginFrame.
 }
 
 @end
-
-
-%ctor
-{
-    // Initialization logic if necessary
-}
