@@ -1,12 +1,7 @@
 # THEOS compilation, install here: https://theos.dev
-#IOS Theos Template Komaru
-#Jailed (NoJB) Mod Menu Template for iOS Games
-#By aq9
-#https://github.com/VenerableCode/iOS-Theos-ModMenuTemp-NoJB
-
 
 ARCHS = arm64
-TARGET = iphone:clang:latest:latest
+TARGET = iphone:clang:latest:15.0
 
 DEBUG = 0
 FINALPACKAGE = 1
@@ -14,7 +9,7 @@ FOR_RELEASE = 1
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = KTemp
+TWEAK_NAME = NoJbModMenu
 
 $(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation Security QuartzCore CoreGraphics CoreText  AVFoundation Accelerate GLKit SystemConfiguration GameController
 
