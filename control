@@ -1,8 +1,8 @@
-Package: com.ktemp
-Name: komaru
+Package: com.intervalmedia.modmenutemplate
+Name: NoJbModMenu
 Depends: mobilesubstrate
-Version: 1
+Version: 2
 Architecture: iphoneos-arm
-Description: Game cheeto template
-Maintainer: aq9
-Author: aq9
+Description: Imgui mod menu cheat template
+Maintainer: IntervalMedia
+Author: IntervalMedia
